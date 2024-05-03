@@ -1,0 +1,46 @@
+x-env_file: &env_file
+  env_file:
+    - .env
+x-restart: &restart
+  restart: always
+
+include:
+  - proxy.yaml
+
+services:
+  db:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      backend:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "127.0.0.1:3306:3306"
+    <<: [ *env_file, *restart ]
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    networks:
+      backend:
+        ipv4_address: 172.20.0.5
+    <<: [ *env_file, *restart ]
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=172.20.0.10
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_NAME=${MYSQL_DATABASE}
+
+#networks:
+#  backend:
+#    driver: bridge
+#    ipam:
+#      config:
+#        - subnet: 172.20.0.0/24
