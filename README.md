@@ -1,30 +1,24 @@
-# shvirtd-example-python
+# Домашнее задание к занятию 5. «Практическое применение Docker» - Натетков А.
 
-Example Flask-application for docker compose training.
-## Installation
-First, you need to clone this repository:
+### Задача 1
 
-```bash
-git clone https://github.com/netology-code/shvirtd-example-python.git
-```
+1. Сделайте в своем github пространстве fork репозитория https://github.com/netology-code/shvirtd-example-python/blob/main/README.md.
+2. Создайте файл с именем Dockerfile.python для сборки данного проекта(для 3 задания изучите https://docs.docker.com/compose/compose-file/build/ ). Используйте базовый образ python:3.9-slim.
+3. Протестируйте корректность сборки. Не забудьте dockerignore.
+4. (Необязательная часть, *) Изучите инструкцию в проекте и запустите web-приложение без использования docker в venv. (Mysql БД можно запустить в docker run).
+5. (Необязательная часть, *) По образцу предоставленного python кода внесите в него исправление для управления названием используемой таблицы через ENV переменную.
 
-Now, we will need to create a virtual environment and install all the dependencies:
+### Задача 3
 
-```bash
-python3 -m venv venv  # on Windows, use "python -m venv venv" instead
-. venv/bin/activate   # on Windows, use "venv\Scripts\activate" instead
-pip install -r requirements.txt
-python main.py
-```
-You need to run Mysql database and provide following ENV-variables for connection:  
-- DB_HOST (default: '127.0.0.1')
-- DB_USER (default: 'app')
-- DB_PASSWORD (default: 'very_strong')
-- DB_NAME (default: 'example')
+1. Изучите файл "proxy.yaml"
+2. Создайте в репозитории с проектом файл compose.yaml. С помощью директивы "include" подключите к нему файл "proxy.yaml".
+3. Опишите в файле compose.yaml следующие сервисы:
+ - web. Образ приложения должен ИЛИ собираться при запуске compose из файла Dockerfile.python ИЛИ скачиваться из yandex cloud container registry(из задание №2 со *). Контейнер должен работать в bridge-сети с названием backend и иметь фиксированный ipv4-адрес 172.20.0.5. Сервис должен всегда перезапускаться в случае ошибок. Передайте необходимые ENV-переменные для подключения к Mysql базе данных по сетевому имени сервиса web
 
-The applications will always running on http://localhost:5000.  
-To exit venv just type ```deactivate```
+ - db. image=mysql:8. Контейнер должен работать в bridge-сети с названием backend и иметь фиксированный ipv4-адрес 172.20.0.10. Явно перезапуск сервиса в случае ошибок. Передайте необходимые ENV-переменные для создания: пароля root пользователя, создания базы данных, пользователя и пароля для web-приложения.Обязательно используйте уже существующий .env file для назначения секретных ENV-переменных!
 
-## License
+4. Запустите проект локально с помощью docker compose , добейтесь его стабильной работы: команда curl -L http://127.0.0.1:8090 должна возвращать в качестве ответа время и локальный IP-адрес. Если сервисы не стартуют воспользуйтесь командами: docker ps -a  и docker logs <container_name>
+5. Подключитесь к БД mysql с помощью команды docker exec <имя_контейнера> mysql -uroot -p<пароль root-пользователя> . Введите последовательно команды (не забываем в конце символ ; ): show databases; use <имя вашей базы данных(по-умолчанию example)>; show tables; SELECT * from requests LIMIT 10;.
+6. Остановите проект. В качестве ответа приложите скриншот sql-запроса.
 
-This project is licensed under the MIT License (see the `LICENSE` file for details).
+### Ответ 3
